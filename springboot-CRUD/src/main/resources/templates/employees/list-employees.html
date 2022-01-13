@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html
+  lang="en"
+  xmlns:th="http://wwww.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+>
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="//use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU"
+      crossorigin="anonymous"/>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"
+      crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"
+      integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/"
+      crossorigin="anonymous"></script>
+    <title>Employee Directory</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row mt-3">
+        <div class="col-md-4">
+          <h3>Employee Directory</h3>
+        </div>
+        <div class="col-md-6">
+          <form th:action="@{/employees/search}">
+            <div class="input-group">
+              <input
+                class="form-control"
+                type="search"
+                name="employeeName"
+                placeholder="Search by name"
+              />
+              <button class="btn btn-secondary" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-2">
+        	<!-- Display name and authority -->
+          	<div class="dropdown">
+          		<a class="dropdown-toggle text-dark" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none;">
+              	Hi, <span sec:authentication="name" style="text-transform: capitalize;"></span>
+            	</a>
+            	<ul class="dropdown-menu">
+              		<li><a href="#" class="dropdown-item"><span sec:authentication="principal.authorities"></a></li>
+            	</ul>
+          	</div>
+        </div>
+      </div>
+
+      <hr />
+	<div sec:authorize="hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')">
+		<a
+        th:href="@{/employees/showFormForAdd}"
+        class="btn btn-sm btn-primary mb-3">
+        Add Employee
+      	</a>
+	</div>
+      
+
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+
+            <div sec:authorize="hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')">
+              <th>Action</th>
+            </div>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr th:each="tempEmployee : ${employees}">
+            <td th:text="${tempEmployee.firstName}" />
+            <td th:text="${tempEmployee.lastName}" />
+            <td th:text="${tempEmployee.email}" />
+
+			<div sec:authorize="hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')" class="me-3">
+				<td>
+                  <div class="d-flex flex-row">
+                    <div sec:authorize="hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')" class="me-3">
+                      	<a
+                        th:href="@{/employees/showFormForUpdate(employeeId=${tempEmployee.id})}"
+                        class="btn btn-success btn-sm">Update</a>
+                    </div>
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                      	<a
+                        th:href="@{/employees/delete(employeeId=${tempEmployee.id})}"
+                        class="btn btn-danger btn-sm"
+                        onClick="if (!(confirm('Are you sure you want to delete this employee?'))) return false">
+                        Delete</a>
+                    </div>
+                  </div>
+              	</td>
+			</div>
+            
+          </tr>
+        </tbody>
+      </table>
+      <!-- Add a logout button -->
+      <form action="#" th:action="@{/logout}" method="POST">
+        <input
+          type="submit"
+          value="Logout"
+          class="btn btn-outline-primary mt-2"
+        />
+      </form>
+    </div>
+    
+  </body>
+  
+</html>
